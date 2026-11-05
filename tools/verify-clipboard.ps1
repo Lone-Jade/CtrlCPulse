@@ -267,6 +267,11 @@ finally {
 Write-Host ''
 Write-Host ("功能验收: {0} 通过, {1} 失败" -f $script:passed, $script:failed)
 
+# 验收脚本会结束同名进程；如果本机装了正式版本，测完把它重新拉起来。
+$installedExe = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'CtrlCPulse\CtrlCPulse.exe'
+if ((Test-Path $installedExe) -and -not (Get-Process -Name 'CtrlCPulse' -ErrorAction SilentlyContinue)) {
+    Start-Process -FilePath $installedExe -ArgumentList '--tray' -WindowStyle Hidden
+}
 if ($script:failed -gt 0) {
     exit 1
 }

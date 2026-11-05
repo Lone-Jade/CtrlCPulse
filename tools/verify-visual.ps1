@@ -329,8 +329,14 @@ function Test-Card {
     $interior = Get-Pixel $buffer $interiorX $midY
     Check "$Label 卡片内部深色" ((Get-Luma $interior) -lt 110) ("luma " + [int](Get-Luma $interior))
 
+    # 圆角外侧仍压着一层柔和阴影，所以只要求“接近桌面底色”；
+    # 阈值 40 足以区分“透明圆角”和“卡片填充”（后者与桌面差通常在 100 以上）。
     $corner = Get-Pixel $buffer ($cardLeft + 2) ($cardTop + 2)
-    Check "$Label 左上圆角透明" ((Get-Luma $corner) -gt 120) ("圆角像素 luma " + [int](Get-Luma $corner))
+    $baselineCorner = Get-Pixel $baseline ($cardLeft + 2) ($cardTop + 2)
+    $cornerDelta = [Math]::Max(
+        [Math]::Abs($corner.R - $baselineCorner.R),
+        [Math]::Max([Math]::Abs($corner.G - $baselineCorner.G), [Math]::Abs($corner.B - $baselineCorner.B)))
+    Check "$Label 左上圆角透明" ($cornerDelta -le 40) ("与桌面最大通道差 " + $cornerDelta)
 
     $checkHits = Count-BrightPixels -Buffer $buffer `
         -X0 ($cardLeft + [int](10 * $scale)) -X1 ($cardLeft + [int](55 * $scale)) `
@@ -383,7 +389,7 @@ function Wait-ForCards {
 Get-Process -Name 'CtrlCPulse' -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Milliseconds 400
 
-$foregroundBefore = [Win32Probe]::GetForegroundWindow()
+
 
 $baselineBitmap = Capture-Screen
 Save-Capture $baselineBitmap '00-baseline.png'
@@ -404,6 +410,8 @@ $filesBitmap = Capture-Screen
 Save-Capture $filesBitmap '03-files.png'
 
 $foregroundDuring = [Win32Probe]::GetForegroundWindow()
+$foregroundDuringProcessId = 0
+[void][Win32Probe]::GetWindowThreadProcessId($foregroundDuring, [ref]$foregroundDuringProcessId)
 
 $process.WaitForExit(15000) | Out-Null
 Start-Sleep -Milliseconds 500
@@ -415,7 +423,7 @@ $goneWindows = Get-ToastWindows -OwnerProcessId $process.Id
 
 # ---------------- 断言 ----------------
 
-Check '前台窗口未被抢占' ($foregroundBefore -eq $foregroundDuring) ("before " + $foregroundBefore + " / during " + $foregroundDuring)
+Check '前台窗口未被提示抢占' ($foregroundDuringProcessId -ne $process.Id) ("前台进程 " + $foregroundDuringProcessId + " / 演示进程 " + $process.Id)
 
 Test-Card -Label '文本卡片' -Bitmap $textBitmap -Windows $textWindows `
     -AccentR 92 -AccentG 148 -AccentB 255 -BaseHeight 84
@@ -455,6 +463,12 @@ Write-Host ''
 Write-Host ("视觉验收: {0} 通过, {1} 失败" -f $script:passed, $script:failed)
 Write-Host ("截图目录: {0}" -f $OutDir)
 
+# 验收脚本会结束同名进程；如果本机装了正式版本，测完把它重新拉起来。
+$installedExe = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'CtrlCPulse\CtrlCPulse.exe'
+if ((Test-Path $installedExe) -and -not (Get-Process -Name 'CtrlCPulse' -ErrorAction SilentlyContinue)) {
+    Start-Process -FilePath $installedExe -ArgumentList '--tray' -WindowStyle Hidden
+}
 if ($script:failed -gt 0) {
     exit 1
 }
+

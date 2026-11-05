@@ -18,3 +18,7 @@ desktop.ini
 
 # 便携模式运行时文件
 settings.ini
+
+# 发布打包中间产物
+package/
+*.zip

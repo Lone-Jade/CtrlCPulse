@@ -173,4 +173,10 @@ uninstall.ps1 卸载
 
 [MIT](LICENSE)
 
+## 开发方式
+
+本项目在 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 中完成：需求拆解、代码实现、缺陷调试，以及三套验收脚本（逻辑自检、端到端剪贴板验收、像素级视觉验收）的编写与执行，均由 AI 代理在该环境内完成。
+
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
+
 

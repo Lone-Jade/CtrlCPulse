@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 编译并运行自检
         shell: pwsh
@@ -30,6 +28,25 @@ jobs:
           Copy-Item install.ps1, uninstall.ps1, README.md, LICENSE package/
           Compress-Archive -Path package/* -DestinationPath "CtrlCPulse-${{ github.ref_name }}.zip"
 
+      - name: 生成发布说明
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          $content = Get-Content CHANGELOG.md -Raw
+          $pattern = "(?ms)^## \[$([regex]::Escape($version))\].*?(?=^## \[|\z)"
+          $match = [regex]::Match($content, $pattern)
+          $section = if ($match.Success) { $match.Value.Trim() } else { '完整变更见仓库的 CHANGELOG.md。' }
+
+          $intro = @'
+          下载下方 zip，解压后运行 install.ps1 即可安装（Windows 10/11，需要 .NET Framework 4.8）：
+
+          ```powershell
+          powershell -ExecutionPolicy Bypass -File .\install.ps1
+          ```
+          '@
+
+          ($intro + "`n`n" + $section) | Set-Content release-notes.md -Encoding UTF8
+
       - name: 创建 Release
         shell: pwsh
         env:
@@ -38,4 +55,4 @@ jobs:
           gh release create "${{ github.ref_name }}" `
             "CtrlCPulse-${{ github.ref_name }}.zip" `
             --title "${{ github.ref_name }}" `
-            --generate-notes
+            --notes-file release-notes.md

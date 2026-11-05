@@ -1,5 +1,9 @@
 # CtrlCPulse
 
+[![build](https://github.com/Lone-Jade/CtrlCPulse/actions/workflows/build.yml/badge.svg)](https://github.com/Lone-Jade/CtrlCPulse/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/Lone-Jade/CtrlCPulse)](https://github.com/Lone-Jade/CtrlCPulse/releases/latest)
+[![license](https://img.shields.io/github/license/Lone-Jade/CtrlCPulse)](LICENSE)
+
 按下 `Ctrl + C` 之后，屏幕右下角滑出一张自绘的半透明卡片，告诉你"刚刚复制了什么"：文字、图片还是文件。
 
 不是系统气泡通知，也不是截图工具——它只是安静地待在托盘里，复制时给一个确认。

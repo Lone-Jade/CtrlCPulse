@@ -1,0 +1,9 @@
+# 把下面的 OWNER/REPO 换成你的 GitHub 用户名和仓库名
+blank_issues_enabled: false
+contact_links:
+  - name: 使用说明与常见问题
+    url: https://github.com/OWNER/REPO#readme
+    about: 托盘图标被 Windows 收纳、SmartScreen 提示等问题已在 README 中说明
+  - name: 安全问题
+    url: https://github.com/OWNER/REPO/security/advisories/new
+    about: 请勿用公开 issue 报告安全漏洞

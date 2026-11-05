@@ -1,0 +1,17 @@
+# 统一换行与二进制识别，避免 Windows / macOS / Linux 协作时整文件 diff
+* text=auto
+
+*.cs text diff=csharp
+*.ps1 text
+*.psm1 text
+*.md text
+*.yml text
+*.yaml text
+*.json text
+*.ini text
+*.manifest text
+
+*.png binary
+*.ico binary
+*.exe binary
+*.zip binary

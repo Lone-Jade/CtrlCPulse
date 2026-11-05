@@ -2,7 +2,8 @@
 param(
     [switch]$Test,
     [switch]$Install,
-    [switch]$Clean
+    [switch]$Clean,
+    [string]$Csc
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,10 +15,24 @@ $assetsDir = Join-Path $root 'assets'
 $framework = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
 
 function Find-Csc {
+    # 1) 显式参数；2) 环境变量；3) 常见安装位置；4) vswhere 兜底。
+    if ($Csc) {
+        if (-not (Test-Path $Csc)) {
+            throw "指定的 csc.exe 不存在：$Csc"
+        }
+
+        return (Get-Item $Csc).FullName
+    }
+
+    if ($env:CTRLCPULSE_CSC -and (Test-Path $env:CTRLCPULSE_CSC)) {
+        return (Get-Item $env:CTRLCPULSE_CSC).FullName
+    }
+
     $candidates = @(
-        'E:\BuildTools2022\MSBuild\Current\Bin\Roslyn\csc.exe',
         'C:\Program Files\Microsoft Visual Studio\2022\*\MSBuild\Current\Bin\Roslyn\csc.exe',
-        'C:\Program Files (x86)\Microsoft Visual Studio\2022\*\MSBuild\Current\Bin\Roslyn\csc.exe'
+        'C:\Program Files (x86)\Microsoft Visual Studio\2022\*\MSBuild\Current\Bin\Roslyn\csc.exe',
+        'C:\Program Files\Microsoft Visual Studio\2019\*\MSBuild\Current\Bin\Roslyn\csc.exe',
+        'C:\Program Files (x86)\Microsoft Visual Studio\2019\*\MSBuild\Current\Bin\Roslyn\csc.exe'
     )
 
     foreach ($candidate in $candidates) {
@@ -35,7 +50,7 @@ function Find-Csc {
         }
     }
 
-    throw '未找到 Roslyn csc.exe。请安装 .NET Framework 4.8 Developer Pack 或 Visual Studio Build Tools（含 .NET 桌面开发组件）。'
+    throw '未找到 Roslyn csc.exe。请安装 Visual Studio Build Tools（含 .NET 桌面开发组件），或用 -Csc 指定路径。'
 }
 
 function Invoke-Compile {

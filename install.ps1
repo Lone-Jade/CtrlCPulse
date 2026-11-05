@@ -9,18 +9,29 @@ $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $source = Join-Path $root 'dist\CtrlCPulse.exe'
 
-# 默认装在仓库同级目录（本机即 E:\XIWEI++\CtrlCPulse），不占用系统盘。
+# Release 包解压后 exe 与脚本同级，这里兼容两种布局。
+if (-not (Test-Path $source)) {
+    $flat = Join-Path $root 'CtrlCPulse.exe'
+    if (Test-Path $flat) {
+        $source = $flat
+    }
+}
+
+# 默认装在脚本所在目录的同级 CtrlCPulse 文件夹，不占用系统盘。
 if (-not $InstallDirectory) {
     $InstallDirectory = Join-Path (Split-Path -Parent $root) 'CtrlCPulse'
 }
 
 if (-not (Test-Path $source)) {
-    Write-Host '未找到构建产物，先执行 build.ps1 ...'
-    & (Join-Path $root 'build.ps1')
+    $builder = Join-Path $root 'build.ps1'
+    if (Test-Path $builder) {
+        Write-Host '未找到构建产物，先执行 build.ps1 ...'
+        & $builder
+    }
 }
 
 if (-not (Test-Path $source)) {
-    throw '构建失败：dist\CtrlCPulse.exe 不存在'
+    throw '未找到 CtrlCPulse.exe：请在源码目录运行 build.ps1，或从 Release 包解压后再安装。'
 }
 
 $targetDirectory = $InstallDirectory

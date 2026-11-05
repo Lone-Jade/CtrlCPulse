@@ -51,14 +51,23 @@ CtrlCPulse 把"剪贴板里现在是什么"变成一眼可见的一行字。
 
 ## 安装 / 卸载
 
+**从 Release 安装（不需要构建环境）**：到 [Releases](../../releases) 下载最新 `CtrlCPulse-v*.zip`，解压后运行：
+
 ```powershell
-.\install.ps1              # 装到 E:\XIWEI++\CtrlCPulse，写开机自启，立即启动
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+**从源码安装**：
+
+```powershell
+.\build.ps1                # 先编译
+.\install.ps1              # 安装 + 写开机自启 + 立即启动
 .\install.ps1 -NoStart     # 只安装，不启动
 .\install.ps1 -InstallDirectory 'D:\Tools\CtrlCPulse'   # 指定安装位置
 .\uninstall.ps1            # 停止进程、删自启项、删程序目录
 ```
 
-默认安装目录是**仓库同级的 `CtrlCPulse` 文件夹**（本机为 `E:\XIWEI++\CtrlCPulse`），不占用系统盘；配置和日志也写在 exe 同目录，整个文件夹可以直接拷走。
+默认安装目录是**脚本所在目录的同级 `CtrlCPulse` 文件夹**，不占用系统盘；配置和日志也写在 exe 同目录，整个文件夹可以直接拷走。
 
 安装后如果右下角看不到图标：Windows 11 默认把新应用的托盘图标收进 `^` 溢出区，把 CtrlCPulse 拖到常驻区域即可。
 
@@ -133,10 +142,19 @@ tests/        自检入口（与 src 一起编译成 CtrlCPulse.SelfTest.exe）
 tools/        图标生成、视觉验收、功能验收脚本
 assets/       图标与应用程序清单
 docs/         设计说明、测试说明、验收截图
+.github/      CI、发布工作流、issue / PR 模板
 build.ps1     构建入口
 install.ps1   安装
 uninstall.ps1 卸载
 ```
+
+## 参与贡献
+
+欢迎提 issue 和 PR。开始之前请看 [CONTRIBUTING.md](CONTRIBUTING.md)（构建、代码结构、提交规范、发布流程）与 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
+
+安全问题请走 [SECURITY.md](SECURITY.md) 里的私密渠道，不要用公开 issue。
+
+版本变化见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 已知限制
 
